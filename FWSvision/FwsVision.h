@@ -65,7 +65,7 @@
 
 #endif // FWSVISION_H
 
-        // FUNCIONES MISELANEAS
+        //*************> FUNCIONES MISELANEAS
 
         // lista
         contenedorBmp *     FwsVcrearContenedor           ( ){
@@ -204,8 +204,8 @@
 
         }
 
-        /************ peligo **********/
 
+        /************ peligo **********/
         contenedorBmp *     FwsVguardarImagenBmpColor         ( contenedorBmp * bmpEntrada, char * nombreSalida, char *nombreImagens ){
 
             // crear el nuevo archivo
@@ -265,7 +265,7 @@
         }
 
 
-        // FUNCIONES DE CARGAR Y CREACION DE IMAGENES BMP
+        //*************> FUNCIONES DE CARGAR Y CREACION DE IMAGENES BMP
 
         // lista
 
@@ -394,5 +394,42 @@
 
         }
 
+        contenedorBmp *     FwsVcrearImagenForAt              ( contenedorBmp * imagenEntrada, char * nombreRuta, char * nombreImagen ){
+
+            // crear un nuevo contenedor vacio
+            contenedorBmp * imagenNueva = FwsVcrearContenedor();
+
+            // mover metadatos de la imagen de entrada a la imagen vacia
+            imagenNueva->imagenAlto         = imagenEntrada->imagenAlto;
+            imagenNueva->imagenAncho        = imagenEntrada->imagenAncho;
+            imagenNueva->imagenClrImp       = imagenEntrada->imagenClrImp;
+            imagenNueva->imagenClrUs        = imagenEntrada->imagenClrUs;
+
+            imagenNueva->imagenDEstr        = imagenEntrada->imagenDEstr;
+            imagenNueva->imagenDmsMt        = imagenEntrada->imagenDmsMt;
+            imagenNueva->imagenNmPlns       = imagenEntrada->imagenNmPlns;
+            imagenNueva->imagenOffst        = imagenEntrada->imagenOffst;
+
+            imagenNueva->imagenPrfClr       = imagenEntrada->imagenPrfClr;
+            imagenNueva->imagenPxMH         = imagenEntrada->imagenPxMH;
+            imagenNueva->imagenPxMV         = imagenEntrada->imagenPxMV;
+            imagenNueva->imagenResrv        = imagenEntrada->imagenResrv;
+
+            imagenNueva->imagenTipo         = imagenEntrada->imagenTipo;
+            imagenNueva->imagenTpCmp        = imagenEntrada->imagenTpCmp;
+            imagenNueva->nombreRuta         = imagenEntrada->nombreRuta;
+            imagenNueva->nombreImagen       = imagenEntrada->nombreImagen;
+
+
+
+
+            // conectar una matriz negra con la imagen de entrada
+            imagenNueva->imagenMtrzPxlR = FwsVcrearMatriz( imagenEntrada->imagenAlto, imagenEntrada->imagenAncho );
+            imagenNueva->imagenMtrzPxlG = FwsVcrearMatriz( imagenEntrada->imagenAlto, imagenEntrada->imagenAncho );
+            imagenNueva->imagenMtrzPxlB = FwsVcrearMatriz( imagenEntrada->imagenAlto, imagenEntrada->imagenAncho );
+
+            return imagenNueva;
+
+        }
 
         // FUNIONES DE ESCITURA DE IMAGENES BMP
