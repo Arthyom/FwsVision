@@ -214,8 +214,6 @@
             strcat(nombreCompleto,contenedorEntrada->nombreImagen);
             strcpy(contenedorEntrada->nombreCompleto, contenedorEntrada->nombreCompleto);
 
-
-
         }
 
         /************ peligo **********/
