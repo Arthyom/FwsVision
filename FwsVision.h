@@ -204,6 +204,19 @@
 
         }
 
+        void                FwsVinConctName                 ( contenedorBmp * contenedorEntrada){
+
+            // concatenar el nombre de imagen con la ruta de la imagen para obtener el nombre completo
+            char * nombreCompleto = (char*) malloc( sizeof(char) *( strlength(contenedorEntrada->nombreRuta) + strlength(contenedorEntrada->nombreImagen) ) );
+            strcpy(nombreCompleto,contenedorEntrada->nombreRuta);
+
+            // concatenar la cadena
+            strcat(nombreCompleto,contenedorEntrada->nombreImagen);
+            strcpy(contenedorEntrada->nombreCompleto, contenedorEntrada->nombreCompleto);
+
+
+
+        }
 
         /************ peligo **********/
         contenedorBmp *     FwsVguardarImagenBmpColor         ( contenedorBmp * bmpEntrada, char * nombreSalida, char *nombreImagens ){
