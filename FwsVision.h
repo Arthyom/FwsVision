@@ -14,6 +14,7 @@
     # include <math.h>
     # include <time.h>
 
+
     # define RUTA_DIR "C:/Users/frodo/Documents/herramientas/Utilidades/FWSvision/FWSvision/"
 
         /******************************************/
@@ -27,7 +28,9 @@
             char *      nombreImagen;   //
             char *      nombreCompleto; // ruta + nombre de la imagen
             int         vectorDims;     // dimenciones para un vector de imagenes BMP
-            char        nmbrRtSv;       // ruta o nombre de guardado
+            char *      nombreSalida;   // nombre de la imagen de salida
+            char *      rutaSalida;     // ruta del directorio de salida
+            char *      nmOutCompleto;
 
             char        imagenTipo [2]; // tipo de imagen BMP, JPEG etc
             int         imagenDims;     // tamanio de la imagen en bytes
@@ -204,7 +207,8 @@
 
         }
 
-        void                FwsVinConctName                 ( contenedorBmp * contenedorEntrada){
+
+        void                FwsVinConctName               ( contenedorBmp * contenedorEntrada){
 
             // concatenar el nombre de imagen con la ruta de la imagen para obtener el nombre completo
             char * nombreCompleto = (char*) malloc( sizeof(char) *( strlength(contenedorEntrada->nombreRuta) + strlength(contenedorEntrada->nombreImagen) ) );
@@ -212,23 +216,68 @@
 
             // concatenar la cadena
             strcat(nombreCompleto,contenedorEntrada->nombreImagen);
-            strcpy(contenedorEntrada->nombreCompleto, contenedorEntrada->nombreCompleto);
+            strcpy(contenedorEntrada->nombreCompleto, nombreCompleto);
 
         }
 
+        void                FwsVoutConctName              ( contenedorBmp * contenedorEntrada){
+
+            // concatenar el nombre de imagen con la ruta de la imagen para obtener el nombre completo
+            char * nombreCompleto = (char*) malloc( sizeof(char) *( strlength(contenedorEntrada->nombreSalida) + strlength(contenedorEntrada->rutaSalida) ) );
+            strcpy(nombreCompleto,contenedorEntrada->rutaSalida);
+
+            // concatenar la cadena
+            strcat(nombreCompleto,contenedorEntrada->nombreSalida);
+            strcpy(contenedorEntrada->nmOutCompleto, nombreCompleto);
+
+        }
+
+        // lista
+        int                 FwsVMxmMtrxN                  (char ** matrizEntrada, int alto, int ancho){
+
+            int i,j ;
+            int maximo = 0;
+            for (i = 0 ; i < alto ; i ++ )
+                for ( j = 0 ; j < ancho ; j ++ )
+                    if ( matrizEntrada[i][j]> maximo)
+                        maximo = matrizEntrada;
+
+            return maximo;
+
+        }
+
+        // lista
+        int                 FwsVMnmMtrxN                  (char ** matrizEntrada, int alto, int ancho){
+
+            int i,j ;
+            int minimo = 0;
+            for (i = 0 ; i < alto ; i ++ )
+                for ( j = 0 ; j < ancho ; j ++ )
+                    if ( matrizEntrada[i][j]< minimo)
+                        minimo = matrizEntrada;
+
+            return minimo;
+
+        }
+
+
         /************ peligo **********/
-        contenedorBmp *     FwsVguardarImagenBmpColor         ( contenedorBmp * bmpEntrada, char * nombreSalida, char *nombreImagens ){
+        contenedorBmp *     FwsVguardarImagenBmpColor         ( contenedorBmp * bmpEntrada, char * rutaSalida, char * nombreSalida ){
 
             // crear el nuevo archivo
             FILE * nuevaImagenSalida = fopen( nombreSalida, "wb+");
 
+            // crear contenedor para la imagen de salida
+            contenedorBmp * nuevoContenedorSalida = FwsVcrearContenedor();
+            nuevoContenedorSalida->nombreSalida  = nombreSalida;
+            nuevoContenedorSalida->rutaSalida = rutaSalida;
+
+            // concatenar nombres en uno solo
+            FwsVoutConctName(nuevaImagenSalida);
+
+
             // verificar si se ha podifo salvar la imagen
             if ( nuevaImagenSalida ){
-
-                // crear contenedor para la imagen de salida
-                contenedorBmp * nuevoContenedorSalida = FwsVcrearContenedor();
-                nuevoContenedorSalida->nombreRuta   = nombreSalida;
-                nuevoContenedorSalida->nombreImagen = nombreImagens;
 
                 // leer la imagen indicada
                 fseek(nuevaImagenSalida,0,SEEK_SET);
@@ -276,26 +325,32 @@
         }
 
 
+
+
+
+
         //*************> FUNCIONES DE CARGAR Y CREACION DE IMAGENES BMP
-
         // lista
-
         contenedorBmp *     FwsVcargarImagenBmpColor          ( char * nombreRutaImagen, char * nombreImagen ){
 
+
+            // crear contenedor para la nueva imagen
+            contenedorBmp * nuevoContenedor = FwsVcrearContenedor();
+
+            // crear ruta completa
+            nuevoContenedor->nombreRuta = nombreRutaImagen;
+            nuevoContenedor->nombreImagen = nombreImagen;
+
+            // concatenar nombre y ruta para generar ruta de ubicacion
+            FwsVinConctName(nuevoContenedor);
+
+
+
             // intentar cargar ruta especificada
-            FILE * nuevaImagenBmp = fopen( nombreRutaImagen, "rb+");
+            FILE * nuevaImagenBmp = fopen( nuevoContenedor->nombreCompleto, "rb+");
             if (  nuevaImagenBmp ){
 
-                // crear contenedor para la nueva imagen
-                contenedorBmp * nuevoContenedor = FwsVcrearContenedor();
-
-                // leer datos extra
-                nuevoContenedor->nombreRuta = nombreRutaImagen;
-                nuevoContenedor->nombreImagen = nombreImagen;
-
                 //////////nuevoContenedor->nombreCompleto = strcat(nuevoContenedor->nombreRuta,nuevoContenedor->nombreImagen);
-
-
                 // leer imagen BMP
                 fseek(nuevaImagenBmp,0,SEEK_SET);
                 fread(&nuevoContenedor->imagenTipo, sizeof(char),2,nuevaImagenBmp);
@@ -378,6 +433,7 @@
             return vectorContendores;
         }
 
+
         contenedorBmp *     FwsVcrearImagenBmpColor           ( char * nombreImagen, char * nombreRutaImagen, int alto, int ancho ){
 
             // crear un nuevo contenedor
@@ -391,6 +447,7 @@
 
             nuevoContenedor->nombreImagen = nombreImagen;
             nuevoContenedor->nombreRuta = nombreRutaImagen;
+
             strcpy(nuevoContenedor->imagenTipo,"BM");
 
             // iniciar las matrices de color
@@ -404,6 +461,7 @@
             return imagenSalida;
 
         }
+
 
         contenedorBmp *     FwsVcrearImagenForAt              ( contenedorBmp * imagenEntrada, char * nombreRuta, char * nombreImagen ){
 
@@ -430,6 +488,11 @@
             imagenNueva->imagenTpCmp        = imagenEntrada->imagenTpCmp;
             imagenNueva->nombreRuta         = imagenEntrada->nombreRuta;
             imagenNueva->nombreImagen       = imagenEntrada->nombreImagen;
+            imagenNueva->nombreCompleto     = imagenEntrada->nombreCompleto;
+
+            imagenNueva->rutaSalida         = imagenEntrada->rutaSalida;
+            imagenNueva->nmOutCompleto      = imagenEntrada->nmOutCompleto;
+            imagenNueva->nombreSalida       = imagenEntrada->nombreSalida;
 
 
 
