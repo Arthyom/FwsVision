@@ -15,7 +15,7 @@
     # include <time.h>
 
 
-    # define RUTA_DIR "C:/Users/frodo/Documents/herramientas/Utilidades/FWSvision/FWSvision/"
+    # define WIN_DEF_PT "C:/Users/frodo/Documents/FwsVision/"
 
         /******************************************/
         /******** contenedor imagen BmP   *********/
@@ -62,10 +62,6 @@
         /**************** prototips y declaracion *****************/
         /**********************************************************/
 
-
-
-
-
 #endif // FWSVISION_H
 
         //*************> FUNCIONES MISELANEAS
@@ -83,7 +79,16 @@
             return nuevoContenedor;
         }
 
-        // limpia
+        // lista
+       char *               FwsVconcatDest                ( char * nombreDestino, char * rutaDestino){
+            char *cadenaDestino = (char*)malloc(sizeof(char) * ( strlen(nombreDestino) + strlen(rutaDestino) ));
+
+            strcpy(cadenaDestino, rutaDestino);
+            strcat(cadenaDestino, nombreDestino);
+            return cadenaDestino;
+        }
+
+        // lista
         char **             FwsVcrearMatriz               ( int dimsX, int dimsY ){
 
             // reservar una nueva matriz
@@ -152,22 +157,23 @@
         }
 
         // lista
-        void                FwsVmostrarImagen             ( contenedorBmp * contenedorEntrada, char identificador, char *nombreDestino ){
+        void                FwsVmostrarImagen             ( contenedorBmp * contenedorEntrada, char identificador, char * rutaDestino, char *nombreDestino ){
 
-            FILE * plantillaHtml  = fopen("C:/Users/frodo/Documents/herramientas/Utilidades/FWSvision/FWSvision/plantillaHtml.html","r");
-            FILE * archivoDestino = fopen(nombreDestino,"w");
+            char *rutaCompleta = FwsVconcatDest(nombreDestino,rutaDestino);
+            FILE * plantillaHtml  = fopen("C:/Users/frodo/Documents/FwsVision/plantillaHtml.html","r");
+            FILE * archivoDestino = fopen(rutaCompleta,"w");
 
             while ( !feof(plantillaHtml) ){
                 char caracterExtraido = fgetc(plantillaHtml);
                 if (caracterExtraido != identificador)
                     fputc(caracterExtraido,archivoDestino);
                 else
-                    fprintf(archivoDestino," \" %s \" ",archivoDestino);
+                    fprintf(archivoDestino," \" %s \" ", contenedorEntrada->nombreSalida);
             }
 
             fclose(plantillaHtml);
             fclose(archivoDestino);
-            system(nombreDestino);
+            system(rutaCompleta);
 
         }
 
@@ -198,7 +204,7 @@
 
             strcpy(contenedorCopia->imagenTipo,contenedorEntrada->imagenTipo);
             contenedorCopia->imagenTpCmp = contenedorEntrada->imagenTpCmp;
-            strcpy(contenedorCopia->nmbrRtSv, contenedorEntrada->nmbrRtSv);
+
             strcpy(contenedorCopia->nombreCompleto, contenedorEntrada->nombreCompleto);
             strcpy(contenedorCopia->nombreImagen,contenedorEntrada->nombreImagen);
 
@@ -211,29 +217,29 @@
         void                FwsVinConctName               ( contenedorBmp * contenedorEntrada){
 
             // concatenar el nombre de imagen con la ruta de la imagen para obtener el nombre completo
-            char * nombreCompleto = (char*) malloc( sizeof(char) *( strlength(contenedorEntrada->nombreRuta) + strlength(contenedorEntrada->nombreImagen) ) );
-            strcpy(nombreCompleto,contenedorEntrada->nombreRuta);
+            char * nombreCompleto = (char*) malloc( sizeof(char) *( strlen(contenedorEntrada->nombreRuta) + strlen(contenedorEntrada->nombreImagen) + 4) );
+            strcpy(nombreCompleto, contenedorEntrada->nombreRuta);
 
             // concatenar la cadena
             strcat(nombreCompleto,contenedorEntrada->nombreImagen);
-            strcpy(contenedorEntrada->nombreCompleto, nombreCompleto);
+            contenedorEntrada->nombreCompleto = nombreCompleto;
 
         }
 
         void                FwsVoutConctName              ( contenedorBmp * contenedorEntrada){
 
             // concatenar el nombre de imagen con la ruta de la imagen para obtener el nombre completo
-            char * nombreCompleto = (char*) malloc( sizeof(char) *( strlength(contenedorEntrada->nombreSalida) + strlength(contenedorEntrada->rutaSalida) ) );
+            char * nombreCompleto = (char*) malloc( sizeof(char) *( strlen(contenedorEntrada->nombreSalida) + strlen(contenedorEntrada->rutaSalida) ) );
             strcpy(nombreCompleto,contenedorEntrada->rutaSalida);
 
             // concatenar la cadena
             strcat(nombreCompleto,contenedorEntrada->nombreSalida);
-            strcpy(contenedorEntrada->nmOutCompleto, nombreCompleto);
+            contenedorEntrada->nmOutCompleto = nombreCompleto;
 
         }
 
         // lista
-        int                 FwsVMxmMtrxN                  (char ** matrizEntrada, int alto, int ancho){
+        int                 FwsVMxmMtrxN                  ( char ** matrizEntrada, int alto, int ancho){
 
             int i,j ;
             int maximo = 0;
@@ -247,7 +253,7 @@
         }
 
         // lista
-        int                 FwsVMnmMtrxN                  (char ** matrizEntrada, int alto, int ancho){
+        int                 FwsVMnmMtrxN                  ( char ** matrizEntrada, int alto, int ancho){
 
             int i,j ;
             int minimo = 0;
@@ -264,8 +270,7 @@
         /************ peligo **********/
         contenedorBmp *     FwsVguardarImagenBmpColor         ( contenedorBmp * bmpEntrada, char * rutaSalida, char * nombreSalida ){
 
-            // crear el nuevo archivo
-            FILE * nuevaImagenSalida = fopen( nombreSalida, "wb+");
+
 
             // crear contenedor para la imagen de salida
             contenedorBmp * nuevoContenedorSalida = FwsVcrearContenedor();
@@ -273,7 +278,12 @@
             nuevoContenedorSalida->rutaSalida = rutaSalida;
 
             // concatenar nombres en uno solo
-            FwsVoutConctName(nuevaImagenSalida);
+            FwsVoutConctName(nuevoContenedorSalida);
+
+            // crear el nuevo archivo
+            FILE * nuevaImagenSalida = fopen(nuevoContenedorSalida->nmOutCompleto, "wb+");
+
+
 
 
             // verificar si se ha podifo salvar la imagen
@@ -484,7 +494,7 @@
             imagenNueva->imagenPxMV         = imagenEntrada->imagenPxMV;
             imagenNueva->imagenResrv        = imagenEntrada->imagenResrv;
 
-            imagenNueva->imagenTipo         = imagenEntrada->imagenTipo;
+            strcpy(imagenNueva->imagenTipo   , imagenEntrada->imagenTipo);
             imagenNueva->imagenTpCmp        = imagenEntrada->imagenTpCmp;
             imagenNueva->nombreRuta         = imagenEntrada->nombreRuta;
             imagenNueva->nombreImagen       = imagenEntrada->nombreImagen;
